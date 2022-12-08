@@ -1,3 +1,7 @@
+"""
+Golfed solution for the first day; using list comprehension and a functional style
+"""
+
 def count_calories(_in):
     return max([ sum([int(food) for food in elf.split('\n')]) for elf in _in.split('\n\n') ])
 
