@@ -49,5 +49,5 @@ def _decode(code):
 def play_tourney(_in):
     coded_moveset = [x.split(' ') for x in _in.split('\n')]
     moveset = [ (_decode(them), _decode(you)) for (them, you) in coded_moveset]
-    # TODO
-    return moveset
+    score = sum([ you + Outcome.of_round(them, you) for them, you in moveset ])
+    return score
