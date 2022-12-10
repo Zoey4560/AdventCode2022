@@ -1,4 +1,7 @@
 r"""Going object oriented-ish for this, if we're gonna be doing gameplay
+ useful for ipython dev
+> from importlib import reload
+
 >>> play_tourney_v1('A Y\nB X\nC Z')
 15
 >>> play_tourney_v2('A Y\nB X\nC Z')
