@@ -1,6 +1,7 @@
-input
+input/*.txt
+scratch.py
 
-## PREBUILT .gitignore FROM GITHUB ##
+## Prebuilt .gitignore from GitHub ##
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
