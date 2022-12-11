@@ -2,9 +2,10 @@ r""" Day 7\n
 
 >>> sample_input = '$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k'
 >>> filesystem = parse(sample_input)
->>> solve(filesystem)
+>>> solve_1(filesystem)
 95437
-
+>>> solve_2(filesystem)
+24933642
 """
 
 
@@ -56,18 +57,37 @@ def parse(_in):
     return filesystem
 
 
-def solve(filesystem, max_size = 100_000):
+def solve_1(filesystem, max_size = 100_000):
     tally = 0
     for directory in filter(lambda x: type(x) == Directory, filesystem.values()):
         if directory.size <= max_size:
             tally += directory.size
-        tally += solve(directory)
+        tally += solve_1(directory)
     return tally
+
+
+def solve_2(filesystem: Directory, total=70000000, update=30000000) -> Directory:
+    required_size = update - (total - filesystem.size)
+    def inner(fs):
+        smallest_file = fs
+        for directory in fs.values():
+            if type(directory) == Directory and directory.size >= required_size:
+
+                child = inner(directory)
+                if child.size < directory.size:
+                    smallest_file = child
+
+                if directory.size < smallest_file.size:
+                    smallest_file = directory
+        return smallest_file
+    
+    file_to_delete = inner(filesystem)
+    return file_to_delete.size
 
 
 if __name__ == "__main__":
     with open('input/7.txt') as fh:
         _in = fh.read()
         filesystem = parse(_in)
-        print(f'Part 1: {solve(filesystem)}')
-        # print(f'Part 2: {solve(filesystem)}')
+        print(f'Part 1: {solve_1(filesystem)}')
+        print(f'Part 2: {solve_2(filesystem)}')
