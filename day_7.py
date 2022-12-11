@@ -1,4 +1,9 @@
-r""" Day 7\n
+r""" Day 7
+
+this one was brutal.. didn't ever have to worry about files
+could have just turned the dirs into ints of their size and
+just worked with them flattened... o well. recursion it is.
+not sure why the _buggy_solve_2() gives the wrong answer..
 
 >>> sample_input = '$ cd /\n$ ls\ndir a\n14848514 b.txt\n8504156 c.dat\ndir d\n$ cd a\n$ ls\ndir e\n29116 f\n2557 g\n62596 h.lst\n$ cd e\n$ ls\n584 i\n$ cd ..\n$ cd ..\n$ cd d\n$ ls\n4060174 j\n8033020 d.log\n5626152 d.ext\n7214296 k'
 >>> filesystem = parse(sample_input)
@@ -66,19 +71,41 @@ def solve_1(filesystem, max_size = 100_000):
     return tally
 
 
-def solve_2(filesystem: Directory, total=70000000, update=30000000) -> Directory:
-    required_size = update - (total - filesystem.size)
-    def inner(fs):
+def solve_2(filesystem: Directory, total=70_000_000, update=30_000_000):
+    required_size = update + filesystem.size - total
+
+    def flatten(directory):
+        dirs = []
+        for sub_item in directory.values():
+            if type(sub_item) == Directory:
+                dirs.append(sub_item.size)
+                dirs += flatten(sub_item)
+        return dirs
+
+    delete_candidates = [size for size in flatten(filesystem) if size > required_size]
+    return min(delete_candidates)
+
+
+def _buggy_solve_2(filesystem: Directory, total=70_000_000, update=30_000_000):
+    # giving the wrong answer and I don't know why... 689585
+    required_size = update + filesystem.size - total
+    def inner(fs, debug_offset=''):
+        print(debug_offset, 'in', fs)
         smallest_file = fs
         for directory in fs.values():
+            print('---', required_size)
             if type(directory) == Directory and directory.size >= required_size:
 
-                child = inner(directory)
+                child = inner(directory, debug_offset+'  ')
                 if child.size < directory.size:
+                    print(debug_offset, 'child', child)
                     smallest_file = child
 
                 if directory.size < smallest_file.size:
+                    print(debug_offset, 'dir', directory)
                     smallest_file = directory
+
+        print(debug_offset, 's', smallest_file)
         return smallest_file
     
     file_to_delete = inner(filesystem)
