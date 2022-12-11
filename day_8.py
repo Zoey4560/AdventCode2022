@@ -10,32 +10,74 @@ r""" Day 8
 
 
 def parse(_in):
-    buildings = []
+    trees = []
     for row in _in.split('\n'):
-        buildings.append([int(x) for x in row])
-    return buildings
+        trees.append([int(x) for x in row])
+    return trees
 
 
 def solve_1(_in):
-    buildings = parse(_in)
     count = 0
-    # for each of the inner buildings
-    for i in range(1, len(buildings) - 1):
-        for j in range(1, len(buildings[0]) - 1):
-            b = buildings[i][j]
-            row_left = buildings[i][:j]
-            row_right = buildings[i][j+1:]
-            column_above = [x[j] for x in buildings[:i]]
-            column_below =  [x[j] for x in buildings[i+1:]]
-            lowest_potential_blocker = min([max(x) for x in [row_left, row_right, column_above, column_below] ])
-            if b > lowest_potential_blocker:
+    trees = parse(_in)
+
+    # for each of the inner trees
+    for i in range(1, len(trees) - 1):
+        for j in range(1, len(trees[0]) - 1):
+            tree = trees[i][j]
+
+            left  = trees[i][:j]
+            right = trees[i][j+1:]
+            up   = [x[j] for x in trees[:i]]
+            down = [x[j] for x in trees[i+1:]]
+
+            lowest_potential_blocker = min([max(x) for x in [left, right, up, down] ])
+            if tree > lowest_potential_blocker:
                 count += 1
     # visible inner trees + outside rows + outside columns - double counted corners
-    return count + (len(buildings) * 2) + (len(buildings[0]) * 2) - 4
+    return count + (len(trees) * 2) + (len(trees[0]) * 2) - 4
+
+
+def apraise(tree, view):
+    """ Looks in one direction; counting how many trees can be seen
+    >>> apraise(3, [1, 2, 3, 4])
+    3
+    >>> apraise(3, [2, 5])
+    2
+    >>> apraise(5, [2])
+    1
+    >>> apraise(3, [])
+    0
+    """
+    count = 0
+    for t in view:
+        count += 1
+        if t >= tree:
+            return count
+    return count
+    
 
 def solve_2(_in):
-    pass
-        
+    # there's probably something clever to do that could figure out
+    # which trees are good candidates; instad of scoring every one.
+    #   likely to be a high height tree to begin with
+    # but; it runs instantly anyways -- in human time.
+    best_view = 0
+    trees = parse(_in)
+
+    for i, row in enumerate(trees):
+        for j, tree in enumerate(row):
+
+            left  = apraise(tree, reversed(trees[i][:j]))
+            right = apraise(tree, trees[i][j+1:])
+            up    = apraise(tree, reversed([x[j] for x in trees[:i]]))
+            down  = apraise(tree, [x[j] for x in trees[i+1:]] )
+
+            view = left * right * up * down
+
+            if view > best_view:
+                best_view = view
+
+    return best_view
 
 
 if __name__ == "__main__":
