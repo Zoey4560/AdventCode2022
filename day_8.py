@@ -4,6 +4,9 @@ r""" Day 8
 >>> solve_1(sample_input)
 13
 
+>>> bigger_sample = 'R 5\nU 8\nL 8\nD 3\nR 17\nD 10\nL 25\nU 20'
+>>> solve_2(bigger_sample)
+36
 """
 
 from dataclasses import dataclass
@@ -19,12 +22,24 @@ class Cordinate:
 
 
 class Rope:
-    def __init__(self):
-        self.head = Cordinate()
-        self.tail = Cordinate()
+    def __init__(self, length=1):
+        self.loc = Cordinate()
+        if length > 0:
+            self.tail = Rope(length - 1)
+        else:
+            self.tail = None
 
     def __repr__(self):
-        return f'({self.head.x}, {self.head.y}), ({self.tail.x}, {self.tail.y})'
+        r = f'({self.loc.x}, {self.loc.y})'
+        if self.tail:
+            r += f', {self.tail.__repr__()}'
+        return r
+
+    def get_tail(self, num):
+        if num == 0:
+            return self
+        else:
+            return self.tail.get_tail(num - 1)
 
     def move(self, direction):
         """
@@ -48,26 +63,36 @@ class Rope:
         >>> r.move('R')
         (3, -2), (2, -2)
         """
-        # update head
+        # update loc
         if direction == 'U':
-            self.head.y += 1
+            self.loc.y += 1
         elif direction == 'D':
-            self.head.y -= 1
+            self.loc.y -= 1
         elif direction == 'L':
-            self.head.x -= 1
+            self.loc.x -= 1
         elif direction == 'R':
-            self.head.x += 1
+            self.loc.x += 1
         
-        # update tail
-        dist_x = self.head.x - self.tail.x
-        dist_y = self.head.y - self.tail.y
+        self._update_tail()
+
+        return self
+
+    def _update_tail(self):
+        if self.tail is None:
+            return
+
+        dist_x = self.loc.x - self.tail.loc.x
+        dist_y = self.loc.y - self.tail.loc.y
 
         if abs(dist_x) > 1 or abs(dist_y) > 1:
             # not touching
             if dist_x != 0:
-                self.tail.x += 1 if dist_x > 0 else -1
+                self.tail.loc.x += 1 if dist_x > 0 else -1
             if dist_y != 0:
-                self.tail.y += 1 if dist_y > 0 else -1
+                self.tail.loc.y += 1 if dist_y > 0 else -1
+
+        self.tail._update_tail()
+
         return self
 
 
@@ -80,12 +105,20 @@ def solve_1(_in):
         quantity = int(quantity)
         for _ in range(quantity):
             rope.move(direction)
-            tail_history.add(rope.tail._tuple())
+            tail_history.add(rope.tail.loc._tuple())
     return len(tail_history)
 
 
 def solve_2(_in):
-    pass
+    rope = Rope(9)
+    tail_history = set()
+    for line in _in.split('\n'):
+        direction, quantity = line.split(' ')
+        quantity = int(quantity)
+        for _ in range(quantity):
+            rope.move(direction)
+            tail_history.add(rope.get_tail(9).loc._tuple())
+    return len(tail_history)
 
 
 
