@@ -1,4 +1,4 @@
-r""" Day 8
+r""" Day 9
 
 >>> sample_input = 'R 4\nU 4\nL 3\nD 1\nR 4\nD 1\nL 5\nR 2'
 >>> solve_1(sample_input)
@@ -123,7 +123,7 @@ def solve_2(_in):
 
 
 if __name__ == "__main__":
-    with open('input/8.txt') as fh:
+    with open('input/9.txt') as fh:
         _in = fh.read()
         print(f'Part 1: {solve_1(_in)}')
         print(f'Part 2: {solve_2(_in)}')
